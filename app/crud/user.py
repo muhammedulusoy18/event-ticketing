@@ -11,7 +11,7 @@ def get_user_by_email(db: Session, email: str):
 
 # Yeni Kullanıcı Oluşturma (Kayıt)
 def create_user(db: Session, user: UserCreate):
-    # Şifreyi açık haliyle değil, hashleyerek (kıyma yaparak) alıyoruz
+    # Şifreyi açık haliyle değil, hashleyerek alıyoruz
     hashed_password = get_password_hash(user.password)
 
     # Veritabanı modelini oluşturuyoruz
@@ -24,7 +24,7 @@ def create_user(db: Session, user: UserCreate):
     db.add(db_user)
     db.commit()
 
-    # Veritabanındaki son halini (ID vb. atanmış halini) nesneye geri yükle
+    # Veritabanındaki son halini  nesneye geri yükle
     db.refresh(db_user)
 
     return db_user

@@ -4,7 +4,7 @@ from app.core.config import settings
 
 # Veritabanı motorunu oluşturuluyor
 engine = create_engine(
-    settings.DATABASE_URL, connect_args={"check_same_thread": False}
+    settings.AUTHDATABASE_URL, connect_args={"check_same_thread": False}
 )
 
 # Veritabanı ile işlem yaptığımızda açılacak oturum

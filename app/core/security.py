@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 import jwt
 from app.core.config import settings
+from fastapi import HTTPException, status
 
 # Şifreleri hashlemek için bcrypt algoritması
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -36,3 +37,20 @@ def create_refresh_token(data: dict):
 
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
+def check_role(data:dict):
+        score:int=-1
+        if data.get("role") == settings.admin_role:
+            score =2
+        elif data.get("role") == settings.editor_role:
+            score =1
+        elif data.get("role") == settings.user_role:
+            score =0
+        else:
+            score =-1
+        if score == -1:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="geçersiz kontrol")
+
+
+
+        return score
+

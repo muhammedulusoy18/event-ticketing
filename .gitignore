@@ -1,6 +1,12 @@
-venv/
-.idea/
+
 __pycache__/
-*.db
+*.py[cod]
+*$py.class
+venv/
 .env
-.vscode/
+
+*.db
+auth_app.db
+events.db
+static/event_images/*
+!static/event_images/.gitkeep

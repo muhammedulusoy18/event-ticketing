@@ -9,6 +9,10 @@ class Settings:
     ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 15))
     REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", 7))
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./auth_app.db")
+    AUTHDATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./auth_app.db")
+    EVENTDB_URL: str = os.getenv("EVENTDB_URL", "sqlite:///./eventdb.db")
 
+    admin_role: str=  "admin"
+    editor_role: str="editor"
+    user_role: str="user"
 settings = Settings()

@@ -8,10 +8,12 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
+
 # Bizim dışarıya döneceğimiz veri formatı
 class UserResponse(UserBase):
     id: int
     is_active: bool
+    role: str
 
     class Config:
         from_attributes = True  # veritabanı modelini Pydantic şemasına  çeviriyoruz

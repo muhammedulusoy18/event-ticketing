@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.user import UserCreate, UserResponse
@@ -38,14 +38,14 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         raise HTTPException(status_code=400, detail="Hatalı e-posta veya şifre.")
 
     # Giriş başarılıysa Token'ları üret
-    access_token = security.create_access_token(data={"sub": user.email})
-    refresh_token = security.create_refresh_token(data={"sub": user.email})
+    access_token = security.create_access_token(data={"sub": user.email,"role":user.role})
+    refresh_token = security.create_refresh_token(data={"sub": user.email,"role":user.role})
 
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
-        "token_type": "bearer"
-
+        "token_type": "bearer",
+        "role": user.role
     }
 #refresh token
 @router.post("/refresh",response_model=Token)
@@ -54,6 +54,7 @@ def refresh_token(refresh_token:str,db:Session=Depends(get_db)):
         # gelen refresh tokeni açıyoruz
         payload=jwt.decode(refresh_token,security.settings.SECRET_KEY,algorithms=[security.settings.ALGORITHM])
         email:str=payload.get("sub")
+        role:str=payload.get("role")
         if email is None :
             raise HTTPException(status_code=401,detail="geçersiz refresh token")
     except jwt.PyJWTError:
@@ -61,21 +62,23 @@ def refresh_token(refresh_token:str,db:Session=Depends(get_db)):
     user=user_crud.get_user_by_email(db,email=email)
     if user is None:
         raise HTTPException(status_code=404,detail="kullanıcı bulunamadı")
-    new_access_token= security.create_access_token(data={"sub": user.email})
-    new_refresh_token= security.create_refresh_token(data={"sub": user.email})
+    new_access_token= security.create_access_token(data={"sub": user.email,"role":user.role})
+    new_refresh_token= security.create_refresh_token(data={"sub": user.email,"role":user.role})
     return{
         "access_token": new_access_token,
         "refresh_token": new_refresh_token,
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "role":user.role
     }
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 def get_current_user(db: Session = Depends(get_db),token: str =Depends(oauth2_scheme)):
     try:
         payload=jwt.decode(token,security.settings.SECRET_KEY,algorithms=[security.settings.ALGORITHM])
         email: str=payload.get("sub")
+        role:str=payload.get("role")
         if email is None:
             raise HTTPException(status_code=401, detail= "geçersiz token:Email bulunamadı")
-        token_data = TokenData(email=email)
+        token_data = TokenData(email=email,role=role)
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="geçersiz veya süresi dolmuş token")
     user= user_crud.get_user_by_email(db, email=token_data.email)
@@ -85,3 +88,6 @@ def get_current_user(db: Session = Depends(get_db),token: str =Depends(oauth2_sc
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user:UserResponse = Depends(get_current_user)):
     return current_user
+
+
+
