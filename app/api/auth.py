@@ -108,7 +108,7 @@ def registeradmin(user_in: UserCreateAdmin, db: Session = Depends(get_db),curren
         return user_crud.create_user_admin(db=db, user=user_in)
     else:
         raise HTTPException(
-            status_code=400,
+            status_code=403,
             detail="yetkiniz yok."
         )
 
