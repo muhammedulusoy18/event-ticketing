@@ -37,13 +37,14 @@ def create_refresh_token(data: dict):
 
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
-def check_role(data:dict):
+def check_role(data):
         score:int=-1
-        if data.get("role") == settings.admin_role:
+        user_role=data.role
+        if user_role == settings.admin_role:
             score =2
-        elif data.get("role") == settings.editor_role:
+        elif user_role== settings.editor_role:
             score =1
-        elif data.get("role") == settings.user_role:
+        elif user_role == settings.user_role:
             score =0
         else:
             score =-1
