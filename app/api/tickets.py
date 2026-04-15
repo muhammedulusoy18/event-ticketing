@@ -2,6 +2,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.api.auth import get_current_user
+from app.models.events import Events
 from app.schemas.tickets import TicketPurchaseCreate, TicketResponse
 from app.crud.tickets import create_ticket_purchase
 from app.models.user import User
@@ -53,3 +54,18 @@ def get_my_tickets(db: Session = Depends(get_Eventdb), current_user: User = Depe
     if not my_tickets:
         return []
     return my_tickets
+@router.delete("/{ticket_uuid}/delete")
+def delete_ticket(ticket_uuid:str,current_user: User = Depends(get_current_user),db: Session = Depends(get_Eventdb)):
+    ticket = db.query(Tickets).filter(Tickets.ticket_uuid == ticket_uuid).first()
+    if ticket is None:
+        raise HTTPException(status_code=404,detail="Böyle bir bilet bulunamadı.")
+
+    if ticket.is_used:
+        raise HTTPException(status_code=400, detail="Bu bilet kullanıldığı için ipta edilemez")
+    if ticket.user_id != current_user.id:
+        raise HTTPException(status_code=403,detail="böyle bir biletiniz yok.")
+    ticket.event.quota+=ticket.quantity
+    db.delete(ticket)
+    db.commit()
+    return {"message": "Bilet başarıyla silindi kota iade edildi"}
+
