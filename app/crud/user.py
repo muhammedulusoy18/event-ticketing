@@ -12,7 +12,16 @@ def get_user_by_email(db: Session, email: str):
 # Yeni Kullanıcı Oluşturma (Kayıt)
 def create_user_default(db: Session, user: UserCreate):
     # Şifreyi açık haliyle değil, hashleyerek alıyoruz
-    hashed_password = get_password_hash(user.password)
+        hashed_password = get_password_hash(user.password)
+        db_user = User(
+        email=user.email,
+        hashed_password=hashed_password
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+
+        return db_user
 def create_user_admin(db: Session, user: UserCreate):
     # Veritabanı modelini oluşturuyoruz
     db_user = User(

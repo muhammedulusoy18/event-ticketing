@@ -39,7 +39,10 @@ def create_refresh_token(data: dict):
     return encoded_jwt
 def check_role(data):
         score:int=-1
-        user_role=data.role
+        if isinstance(data, dict):
+            user_role = data.get("role")
+        else:
+            user_role = getattr(data, "role", None)
         if user_role == settings.admin_role:
             score =2
         elif user_role== settings.editor_role:
