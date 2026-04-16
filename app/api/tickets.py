@@ -49,7 +49,12 @@ def validate_ticket(
             raise HTTPException(status_code=400,detail=f"Bu bilet daha önce kullanılmış!")
         ticket.is_used = True
         db.commit()
-        return {"message": "Bilet başarıyla doğrulandı. Giriş yapabilirsiniz!", "ticket_id": ticket.ticket_id}
+        return {"status": "success",
+                "message": "Bilet onaylandı! Giriş serbest.",
+                "ticket_details": {
+                "event_name": ticket.event.event_name,
+                "quantity": ticket.quantity,
+                "owner_id": ticket.user_id}}
 @router.get("/my",response_model=List[TicketResponse])
 def get_my_tickets(db: Session = Depends(get_Eventdb), current_user: User = Depends(get_current_user)):
     my_tickets=db.query(Tickets).filter(Tickets.user_id == current_user.id).all()
